@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HistouryMap - Signup</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .auth-container {
+      max-width: 400px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+    .auth-container h2 { color: #1565c0; margin-bottom: 15px; }
+    .auth-container input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .auth-container button {
+      width: 95%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="preloader"><div class="loader"></div></div>
+
+  <header>
+    <h1>HistouryMap</h1>
+    <nav id="navbar">
+      <a href="index.html"><i class="fas fa-home"></i> Home</a>
+      <span id="authLink"></span>
+    </nav>
+  </header>
+
+  <div class="hero small-hero">
+    <h2>📝 Signup</h2>
+    <p>Create your account to start using HistouryMap.</p>
+  </div>
+
+  <main>
+    <div class="auth-container">
+      <h2>Signup</h2>
+      <input type="text" id="signupName" placeholder="Enter your name">
+      <input type="text" id="signupEmail" placeholder="Enter email or phone">
+      <input type="password" id="signupPassword" placeholder="Enter password">
+      <button onclick="signupUser()">Signup</button>
+      <p>Already have an account? <a href="login.html">Login</a></p>
+    </div>
+  </main>
+
+  <footer>
+    <p>🌍 HistouryMap © 2025 | Smart India Hackathon Project</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    function signupUser() {
+      const name = document.getElementById("signupName").value.trim();
+      const email = document.getElementById("signupEmail").value.trim();
+      const password = document.getElementById("signupPassword").value.trim();
+
+      if (!name || !email || !password) {
+        alert("⚠️ Please fill all fields!");
+        return;
+      }
+
+      const user = { name, email, password };
+      localStorage.setItem("userAccount", JSON.stringify(user));
+      alert("✅ Signup successful! Please login.");
+      window.location.href = "login.html";
+    }
+
+    window.onload = updateNavbar;
+  </script>
+</body>
+</html>

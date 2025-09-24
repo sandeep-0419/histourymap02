@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HistouryMap - Home</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+</head>
+<body>
+  <!-- Preloader -->
+  <div id="preloader">
+    <div class="loader"></div>
+  </div>
+
+  <!-- Header -->
+ <header>
+  <h1>HistouryMap</h1>
+  <nav id="navbar">
+  <a href="index.html" class="active"><i class="fas fa-home"></i> Home</a>
+  <a href="places.html"><i class="fas fa-map-marked-alt"></i> Tourist Places</a>
+  <a href="planner.html"><i class="fas fa-calendar-alt"></i> Trip Planner</a>
+  <a href="eco.html"><i class="fas fa-leaf"></i> Eco Score</a>
+  <a href="route.html"><i class="fas fa-route"></i> Route View</a>
+  <span id="authLink"></span>
+</nav>
+
+</header>
+
+
+  <!-- Hero Section -->
+  <div class="hero">
+    <h2>Welcome to HistouryMap 🌍</h2>
+    <p>Plan your trips, explore famous places, and travel eco-friendly with smart insights.</p>
+    <a href="places.html" class="btn-cta"><i class="fas fa-plane"></i> Start Exploring</a>
+  </div>
+
+  <!-- Features Section -->
+  <main>
+    <h2 style="text-align:center;">✨ Why Use HistouryMap?</h2>
+    <div class="features-grid">
+      <div class="feature-card" data-aos="fade-up">
+        <i class="fas fa-map-marked-alt fa-2x"></i>
+        <h3>Tourist Places</h3>
+        <p>Discover famous destinations and learn about their history.</p>
+      </div>
+      <div class="feature-card" data-aos="fade-up">
+        <i class="fas fa-calendar-alt fa-2x"></i>
+        <h3>Trip Planner</h3>
+        <p>Estimate your trip cost and plan your journey easily.</p>
+      </div>
+      <div class="feature-card" data-aos="fade-up">
+        <i class="fas fa-leaf fa-2x"></i>
+        <h3>Eco Score</h3>
+        <p>Choose eco-friendly travel options and track your score.</p>
+      </div>
+      <div class="feature-card" data-aos="fade-up">
+        <i class="fas fa-route fa-2x"></i>
+        <h3>Route View</h3>
+        <p>Visualize routes between landmarks with interactive maps.</p>
+      </div>
+      <div class="feature-card" data-aos="fade-up">
+        <i class="fas fa-list fa-2x"></i>
+        <h3>Bucket List</h3>
+        <p>Save your dream destinations and track your progress.</p>
+      </div>
+    </div>
+
+    <section>
+      <h2>Search City</h2>
+      <input type="text" id="cityInput" placeholder="Enter your city name (e.g., Delhi)">
+      <button onclick="searchCity()"><i class="fas fa-search"></i> Search</button>
+      <div id="cityResult"></div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>🌍 HistouryMap © 2025 | Smart India Hackathon Project</p>
+    <p>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-linkedin"></i></a>
+      <a href="#"><i class="fab fa-github"></i></a>
+    </p>
+  </footer>
+
+  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+  <script>AOS.init({ duration: 1000, once: true });</script>
+  <script src="js/main.js"></script>
+  <!-- SOS Floating Button -->
+<button class="sos-btn" onclick="openSOS()">🚨</button>
+
+<!-- SOS Modal -->
+<div id="sosModal" class="sos-modal">
+  <div class="sos-content">
+    <h3>🚨 Emergency Contacts</h3>
+    <p><a href="tel:100">🚔 Police - 100</a></p>
+    <p><a href="tel:108">🏥 Ambulance/Hospital - 108</a></p>
+    <div id="userEmergency"></div>
+    <button class="edit-btn" onclick="closeSOS()">Close</button>
+  </div>
+</div>
+
+</body>
+</html>

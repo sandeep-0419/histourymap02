@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HistouryMap - Eco Score</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+  <style>
+    #ecoChart { max-width: 600px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div id="preloader"><div class="loader"></div></div>
+
+ <header>
+  <h1>HistouryMap</h1>
+  <nav id="navbar">
+  <a href="index.html" class="active"><i class="fas fa-home"></i> Home</a>
+  <a href="places.html"><i class="fas fa-map-marked-alt"></i> Tourist Places</a>
+  <a href="planner.html"><i class="fas fa-calendar-alt"></i> Trip Planner</a>
+  <a href="eco.html"><i class="fas fa-leaf"></i> Eco Score</a>
+  <a href="route.html"><i class="fas fa-route"></i> Route View</a>
+  <span id="authLink"></span>
+</nav>
+
+</header>
+
+
+
+  <div class="hero small-hero">
+    <h2>🌱 Eco Score</h2>
+    <p>Check your eco-friendly travel score and go green.</p>
+  </div>
+
+  <main>
+    <h2>Eco-Friendly Traveling Score</h2>
+    <label>Select Vehicle:</label>
+    <select id="vehicle">
+      <option>Bicycle</option>
+      <option>Walking</option>
+      <option>Metro</option>
+      <option>Motorcycle</option>
+      <option>Car (Petrol/Diesel)</option>
+      <option>Bus</option>
+      <option>Electric Vehicle</option>
+      <option>Train</option>
+    </select>
+    <button onclick="getEcoScore()"><i class="fas fa-chart-bar"></i> Get Score</button>
+    <p id="ecoResult"></p>
+    <canvas id="ecoChart"></canvas>
+  </main>
+
+  <footer>
+    <p>🌍 HistouryMap © 2025 | Smart India Hackathon Project</p>
+    <p>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-linkedin"></i></a>
+      <a href="#"><i class="fab fa-github"></i></a>
+    </p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+  <script>AOS.init({ duration: 1000, once: true });</script>
+  <script src="js/main.js"></script>
+   <!-- SOS Floating Button -->
+<button class="sos-btn" onclick="openSOS()">🚨</button>
+
+<!-- SOS Modal -->
+<div id="sosModal" class="sos-modal">
+  <div class="sos-content">
+    <h3>🚨 Emergency Contacts</h3>
+    <p><a href="tel:100">🚔 Police - 100</a></p>
+    <p><a href="tel:108">🏥 Ambulance/Hospital - 108</a></p>
+    <div id="userEmergency"></div>
+    <button class="edit-btn" onclick="closeSOS()">Close</button>
+  </div>
+</div>
+</body>
+</html>

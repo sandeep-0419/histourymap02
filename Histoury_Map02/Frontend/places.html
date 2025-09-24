@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HistouryMap — Tourist Places</title>
+
+  <!-- Project styles + icons -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    /* --- Local styles for places.html --- */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .search-row {
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      align-items:center;
+      margin: 18px 0;
+      flex-wrap:wrap;
+    }
+    .search-row input[type="text"]{
+      width:520px;
+      max-width:calc(100% - 140px);
+      padding:12px 14px;
+      border-radius:8px;
+      border:1px solid #d0dfe9;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      font-size:15px;
+    }
+    .search-row button{
+      padding:10px 16px;
+      border-radius:8px;
+      border:none;
+      background:#2196f3;
+      color:#fff;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .chips {
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      margin-top:8px;
+      flex-wrap:wrap;
+    }
+    .chip {
+      padding:8px 14px;
+      border-radius:20px;
+      background:#eaf4ff;
+      color:#1565c0;
+      cursor:pointer;
+      border:1px solid rgba(33,150,243,0.15);
+      font-weight:600;
+      transition:all .18s;
+    }
+    .chip:hover { transform:translateY(-3px); background:#d6eeff; }
+
+    /* Places grid */
+    .places-grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+      gap:20px;
+      margin-top:28px;
+    }
+
+    .place-card{
+      height:320px;
+      border-radius:12px;
+      overflow:hidden;
+      position:relative;
+      box-shadow:0 8px 26px rgba(26, 115, 232, 0.08);
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+      background-color:#444; /* fallback */
+      background-size:cover;
+      background-position:center;
+      transition:transform .22s ease;
+    }
+    .place-card:hover{ transform:translateY(-6px) }
+
+    .place-card .card-bottom {
+      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.7) 100%);
+      color:#fff;
+      padding:18px;
+    }
+    .place-title { font-size:20px; font-weight:700; margin:0 0 6px; color:#fff; text-shadow: 0 2px 8px rgba(0,0,0,0.35) }
+    .place-sub { font-size:13px; color:rgba(255,255,255,0.85); margin-bottom:12px; opacity:.95 }
+
+    .card-actions {
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .btn {
+      background:#ffffff;
+      color:#1565c0;
+      padding:8px 12px;
+      border-radius:8px;
+      font-weight:600;
+      border:none;
+      cursor:pointer;
+      text-decoration:none;
+    }
+    .btn-outline {
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.4);
+      color:#fff;
+    }
+    .btn-3d {
+      background:#2e7d32;
+      color:#fff;
+      border:none;
+    }
+
+    /* No results */
+    .no-result {
+      text-align:center;
+      color:#455a64;
+      padding:40px 10px;
+      font-weight:600;
+    }
+
+    /* Modal */
+    .modal {
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,0.6);
+      z-index:9999;
+      padding:24px;
+    }
+    .modal.show { display:flex; }
+    .modal-card {
+      width:100%;
+      max-width:980px;
+      background:#fff;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 18px 60px rgba(0,0,0,0.45);
+    }
+    .modal-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:12px 16px;
+      border-bottom:1px solid #eee;
+    }
+    .modal-title { font-weight:700; color:#213547 }
+    .modal-body { display:flex; gap:18px; flex-wrap:wrap; padding:14px; }
+    .modal-thumb { flex:1 1 420px; min-height:320px; background-size:cover; background-position:center; border-radius:8px; }
+    .modal-info { flex:1 1 240px; padding:6px 10px; display:flex; flex-direction:column; gap:12px; }
+    .modal-info p { margin:0; color:#34495e }
+
+    .modal-actions { margin-top:auto; display:flex; gap:10px; }
+    .close-modal {
+      background:#f44336; color:#fff; border:none; padding:8px 10px; border-radius:8px; cursor:pointer;
+    }
+
+    /* small responsiveness tweaks */
+    @media (max-width:700px){
+      .search-row input { max-width: 100%; width: calc(100% - 130px) }
+      .places-grid { gap:14px }
+      .place-card { height:300px }
+    }
+  </style>
+</head>
+<body>
+  <div id="preloader"><div class="loader"></div></div>
+
+  <!-- header (keeps using your main stylesheet for full site look) -->
+  <header>
+    <h1>HistouryMap</h1>
+    <nav id="navbar">
+      <a href="index.html"><i class="fas fa-home"></i> Home</a>
+      <a href="places.html" class="active"><i class="fas fa-map-marker-alt"></i> Tourist Places</a>
+      <a href="planner.html"><i class="fas fa-calendar-alt"></i> Trip Planner</a>
+      <a href="eco.html"><i class="fas fa-leaf"></i> Eco Score</a>
+      <a href="route.html"><i class="fas fa-route"></i> Route View</a>
+      <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+    </nav>
+  </header>
+
+  <div class="hero small-hero">
+    <h2>📍 Tourist Places</h2>
+    <p>Discover famous attractions by searching city names.</p>
+  </div>
+
+  <main class="container">
+    <div class="search-row">
+      <input id="cityInput" type="text" placeholder="Enter city (Agra, Lucknow, Kanpur, Delhi)">
+      <button id="searchBtn"><i class="fas fa-search"></i> Search</button>
+    </div>
+
+    <div class="chips" role="tablist" aria-label="popular cities">
+      <div class="chip" data-city="agra">Agra</div>
+      <div class="chip" data-city="lucknow">Lucknow</div>
+      <div class="chip" data-city="kanpur">Kanpur</div>
+      <div class="chip" data-city="delhi">Delhi</div>
+    </div>
+
+    <div id="placesResult" class="places-grid" aria-live="polite"></div>
+  </main>
+
+  <footer>
+    <p>🌍 HistouryMap © 2025 | Smart India Hackathon Project</p>
+  </footer>
+
+  <!-- shared site script (your project main) -->
+  <script src="js/main.js"></script>
+
+  <!-- page script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // --- Data: add / replace images as you like (Unsplash used for reliability) ---
+      const TOURIST_DATA = {
+        agra: [
+          { name:"Taj Mahal", img:"https://images.unsplash.com/photo-1549893070-e69cf779b761?auto=format&fit=crop&w=1200&q=80", desc:"Agra" },
+          { name:"Agra Fort", img:"https://images.unsplash.com/photo-1562774056-7b0f1c2a9a3c?auto=format&fit=crop&w=1200&q=80", desc:"Agra" },
+          { name:"Mehtab Bagh", img:"https://images.unsplash.com/photo-1604556472677-7f0f9843f460?auto=format&fit=crop&w=1200&q=80", desc:"Agra" },
+          { name:"Itmad-ud-Daulah", img:"https://images.unsplash.com/photo-1605963967500-27f8a2ce2bfc?auto=format&fit=crop&w=1200&q=80", desc:"Agra" }
+        ],
+        lucknow: [
+          { name:"Bara Imambara", img:"https://images.unsplash.com/photo-1546146471-5c6cbdcf5b6f?auto=format&fit=crop&w=1200&q=80", desc:"Lucknow" },
+          { name:"Rumi Darwaza", img:"https://images.unsplash.com/photo-1533827432537-70133748f5c8?auto=format&fit=crop&w=1200&q=80", desc:"Lucknow" },
+          { name:"Dilkusha Garden", img:"https://images.unsplash.com/photo-1535930749574-1399327ce78f?auto=format&fit=crop&w=1200&q=80", desc:"Lucknow" }
+        ],
+        kanpur: [
+          { name:"Blue World Theme Park", img:"https://images.unsplash.com/photo-1543326961-1b5e5f9f8b61?auto=format&fit=crop&w=1200&q=80", desc:"Kanpur" },
+          { name:"Allen Forest Zoo", img:"https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1200&q=80", desc:"Kanpur" },
+          { name:"Moti Jheel", img:"https://images.unsplash.com/photo-1611565095747-4daa6f4d2d90?auto=format&fit=crop&w=1200&q=80", desc:"Kanpur" },
+          { name:"JK Temple", img:"https://images.unsplash.com/photo-1608723811539-4c6fa2e91a91?auto=format&fit=crop&w=1200&q=80", desc:"Kanpur" }
+        ],
+        delhi: [
+          { name:"Qutub Minar", img:"https://images.unsplash.com/photo-1600409818700-8c8a6a7d7c45?auto=format&fit=crop&w=1200&q=80", desc:"Delhi" },
+          { name:"Red Fort", img:"https://images.unsplash.com/photo-1564501041772-2e4f39f0b2f1?auto=format&fit=crop&w=1200&q=80", desc:"Delhi" },
+          { name:"India Gate", img:"https://images.unsplash.com/photo-1576675788483-3f47b3f8d6a0?auto=format&fit=crop&w=1200&q=80", desc:"Delhi" }
+        ]
+      };
+
+      const placesResult = document.getElementById('placesResult');
+      const input = document.getElementById('cityInput');
+      const searchBtn = document.getElementById('searchBtn');
+
+      // render cards
+      function renderPlaces(cityKey) {
+        const key = (cityKey || '').trim().toLowerCase();
+        placesResult.innerHTML = ''; // clear
+
+        if (!key) {
+          placesResult.innerHTML = `<div class="no-result">Enter or choose a city to show places.</div>`;
+          return;
+        }
+
+        const list = TOURIST_DATA[key];
+        if (!list || list.length === 0) {
+          placesResult.innerHTML = `<div class="no-result">No data for "<strong>${escapeHtml(key)}</strong>". Try Agra, Lucknow, Kanpur or Delhi.</div>`;
+          return;
+        }
+
+        // build cards
+        const fragment = document.createDocumentFragment();
+        list.forEach(place => {
+          const article = document.createElement('article');
+          article.className = 'place-card';
+          article.style.backgroundImage = `url('${place.img}')`;
+          article.setAttribute('aria-label', place.name + ', ' + place.desc);
+
+          article.innerHTML = `
+            <div class="card-bottom">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <h3 class="place-title">${escapeHtml(place.name)}</h3>
+                  <div class="place-sub">${escapeHtml(place.desc)}</div>
+                </div>
+              </div>
+              <div class="card-actions" style="margin-top:8px">
+                <a class="btn" href="https://en.wikipedia.org/wiki/${encodeURIComponent(place.name.replace(/\s+/g,'_'))}" target="_blank" rel="noopener">Read more</a>
+                <button class="btn btn-3d" data-name="${escapeAttr(place.name)}" data-city="${escapeAttr(place.desc)}">🕹️ 3D View</button>
+              </div>
+            </div>
+          `;
+          fragment.appendChild(article);
+        });
+
+        placesResult.appendChild(fragment);
+      }
+
+      // Small helpers to avoid injection
+      function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+      function escapeAttr(s){ return String(s).replace(/"/g,'&quot;'); }
+
+      // open modal (we show a big image and offer a button to open Google Maps search)
+      const modal = createModal();
+      document.body.appendChild(modal.el);
+
+      function createModal(){
+        const wrapper = document.createElement('div');
+        wrapper.className = 'modal';
+        wrapper.innerHTML = `
+          <div class="modal-card" role="dialog" aria-modal="true">
+            <div class="modal-header">
+              <div class="modal-title">Place</div>
+              <button class="close-modal" aria-label="Close">Close ✕</button>
+            </div>
+            <div class="modal-body">
+              <div class="modal-thumb" style="background:#ddd"></div>
+              <div class="modal-info">
+                <p class="modal-desc"></p>
+                <div class="modal-actions">
+                  <a class="btn open-maps" target="_blank" rel="noopener">Open in Google Maps</a>
+                  <button class="close-modal btn-outline">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        // event listeners
+        wrapper.querySelectorAll('.close-modal').forEach(b => b.addEventListener('click', () => hideModal(wrapper)));
+        wrapper.querySelector('.open-maps').addEventListener('click', (e) => {
+          // anchor href already set when modal opened
+        });
+
+        // close on overlay click
+        wrapper.addEventListener('click', (ev) => {
+          if (ev.target === wrapper) hideModal(wrapper);
+        });
+
+        // escape key
+        document.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Escape') hideModal(wrapper);
+        });
+
+        return { el: wrapper, set(place){
+          const thumb = wrapper.querySelector('.modal-thumb');
+          const title = wrapper.querySelector('.modal-title');
+          const desc = wrapper.querySelector('.modal-desc');
+          const openMaps = wrapper.querySelector('.open-maps');
+
+          title.textContent = place.name;
+          desc.textContent = `${place.name} — ${place.desc}`;
+          thumb.style.backgroundImage = `url("${place.img}")`;
+          // google maps search/open: use search query to allow user to view street view / 3D
+          const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(place.name + ' ' + place.desc);
+          openMaps.href = mapsUrl;
+        }};
+      }
+
+      function showModal(data){
+        modal.set(data);
+        modal.el.classList.add('show');
+        // focus management: focus close button
+        const focusable = modal.el.querySelector('.close-modal');
+        if (focusable) focusable.focus();
+      }
+      function hideModal(wrapper){
+        wrapper.classList.remove('show');
+        // clear thumb to avoid memory issues
+        const thumb = wrapper.querySelector('.modal-thumb');
+        if (thumb) thumb.style.backgroundImage = '';
+      }
+
+      // event delegation for 3D buttons
+      placesResult.addEventListener('click', (e) => {
+        const btn = e.target.closest('button.btn-3d');
+        if (!btn) return;
+        const name = btn.dataset.name;
+        const city = btn.dataset.city;
+        // find matching place object
+        const cityKey = (city || '').toLowerCase();
+        const list = TOURIST_DATA[cityKey] || [];
+        const place = list.find(p => p.name === name);
+        if (place) showModal(place);
+      });
+
+      // chips click
+      document.querySelectorAll('.chip').forEach(c=>{
+        c.addEventListener('click', () => {
+          const city = c.getAttribute('data-city');
+          input.value = city;
+          renderPlaces(city.toLowerCase());
+        });
+      });
+
+      // search handlers
+      function runSearch(){
+        const q = input.value.trim();
+        if (!q) {
+          renderPlaces(''); // show placeholder
+          return;
+        }
+        renderPlaces(q.toLowerCase());
+      }
+      searchBtn.addEventListener('click', runSearch);
+      input.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') runSearch(); });
+
+      // initial render
+      renderPlaces('agra');
+    });
+  </script>
+    <!-- SOS Floating Button -->
+  <button class="sos-btn" onclick="openSOS()">🚨</button>
+
+  <!-- SOS Modal -->
+  <div id="sosModal" class="sos-modal">
+    <div class="sos-content">
+      <h3>🚨 Emergency Contacts</h3>
+      <p><a href="tel:100">🚔 Police - 100</a></p>
+      <p><a href="tel:108">🏥 Ambulance/Hospital - 108</a></p>
+      <div id="userEmergency"></div>
+      <button class="edit-btn" onclick="closeSOS()">Close</button>
+    </div>
+  </div>
+</body>
+</html>

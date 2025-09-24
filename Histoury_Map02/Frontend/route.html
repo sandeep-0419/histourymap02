@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HistouryMap - Route View</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    .route-container {
+      max-width: 1100px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .route-form {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    .route-form input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      min-width: 200px;
+    }
+    .route-form button {
+      padding: 10px 15px;
+      background: #1976d2;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .route-form button:hover {
+      background: #0d47a1;
+    }
+    .demo-routes {
+      margin: 20px 0;
+      text-align: center;
+    }
+    .demo-routes button {
+      margin: 5px;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 20px;
+      background: #90caf9;
+      color: #0d47a1;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .demo-routes button:hover {
+      background: #42a5f5;
+      color: white;
+    }
+    #map {
+      height: 500px;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+    .route-info {
+      margin-top: 15px;
+      padding: 12px;
+      background: #e3f2fd;
+      border-radius: 8px;
+      font-size: 15px;
+      color: #0d47a1;
+    }
+    .gmaps-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 15px;
+      background: #34a853;
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    .gmaps-btn:hover {
+      background: #0c7a30;
+    }
+  </style>
+</head>
+<body>
+  <div id="preloader"><div class="loader"></div></div>
+
+<header>
+  <h1>HistouryMap</h1>
+  <nav id="navbar">
+    <a href="index.html"><i class="fas fa-home"></i> Home</a>
+    <a href="places.html"><i class="fas fa-map-marked-alt"></i> Tourist Places</a>
+    <a href="planner.html"><i class="fas fa-calendar-alt"></i> Trip Planner</a>
+    <a href="eco.html"><i class="fas fa-leaf"></i> Eco Score</a>
+    <a href="route.html" class="active"><i class="fas fa-route"></i> Route View</a>
+    <span id="authLink"></span>
+  </nav>
+</header>
+
+  <div class="hero small-hero">
+    <h2>🛣️ Route View</h2>
+    <p>Plan and visualize your travel routes with interactive maps.</p>
+  </div>
+
+  <main>
+    <div class="route-container" data-aos="fade-up">
+      <!-- Input Form -->
+      <form class="route-form" onsubmit="showRoute(event)">
+        <input type="text" id="fromPlace" placeholder="From (e.g., Agra Cantt)">
+        <input type="text" id="toPlace" placeholder="To (e.g., Taj Mahal)">
+        <button type="submit">Find Route</button>
+      </form>
+
+      <!-- Demo Routes -->
+      <div class="demo-routes">
+        <p><b>Quick Demo Routes:</b></p>
+        <button onclick="setDemoRoute('Agra Cantt Railway Station','Taj Mahal')">Agra → Taj Mahal</button>
+        <button onclick="setDemoRoute('Lucknow Charbagh','Bara Imambara')">Lucknow → Bara Imambara</button>
+        <button onclick="setDemoRoute('Kanpur Central','Blue World Theme Park')">Kanpur → Blue World</button>
+        <button onclick="setDemoRoute('New Delhi Railway Station','India Gate')">Delhi → India Gate</button>
+      </div>
+
+      <!-- Map -->
+      <div id="map"></div>
+
+      <!-- Route Info -->
+      <div class="route-info" id="routeInfo">
+        ℹ️ Enter locations or choose a demo route to see details.
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>🌍 HistouryMap © 2025 | Smart India Hackathon Project</p>
+    <p>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-linkedin"></i></a>
+      <a href="#"><i class="fab fa-github"></i></a>
+    </p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    const map = L.map("map").setView([27.1767, 78.0081], 13);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap contributors",
+    }).addTo(map);
+
+    let routeLayer;
+
+    function showRoute(e) {
+      e.preventDefault();
+      const from = document.getElementById("fromPlace").value.trim();
+      const to = document.getElementById("toPlace").value.trim();
+      plotRoute(from, to);
+    }
+
+    function setDemoRoute(from, to) {
+      document.getElementById("fromPlace").value = from;
+      document.getElementById("toPlace").value = to;
+      plotRoute(from, to);
+    }
+
+    function plotRoute(from, to) {
+      if (!from || !to) {
+        alert("⚠️ Please enter both From and To places!");
+        return;
+      }
+
+      // Demo coordinates (replace with real geocoding API if needed)
+      const demoCoords = {
+        "Agra Cantt Railway Station": [27.1509, 77.9936],
+        "Taj Mahal": [27.1751, 78.0421],
+        "Lucknow Charbagh": [26.8309, 80.9211],
+        "Bara Imambara": [26.8690, 80.9154],
+        "Kanpur Central": [26.4525, 80.3512],
+        "Blue World Theme Park": [26.5117, 80.2826],
+        "New Delhi Railway Station": [28.6430, 77.2194],
+        "India Gate": [28.6129, 77.2295],
+      };
+
+      if (!demoCoords[from] || !demoCoords[to]) {
+        alert("⚠️ Route not available in demo data!");
+        return;
+      }
+
+      if (routeLayer) {
+        map.removeLayer(routeLayer);
+      }
+
+      L.marker(demoCoords[from]).addTo(map).bindPopup(from).openPopup();
+      L.marker(demoCoords[to]).addTo(map).bindPopup(to);
+
+      routeLayer = L.polyline([demoCoords[from], demoCoords[to]], { color: "blue", weight: 4 }).addTo(map);
+      map.fitBounds(routeLayer.getBounds());
+
+      // Google Maps link
+      const gmapsLink = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(from)}&destination=${encodeURIComponent(to)}`;
+
+      document.getElementById("routeInfo").innerHTML = `
+        📍 <b>From:</b> ${from} <br>
+        🏁 <b>To:</b> ${to} <br>
+        📏 <b>Distance:</b> ~Demo Estimate <br>
+        ⏱️ <b>Approx Time:</b> Demo Estimate <br>
+        <a href="${gmapsLink}" target="_blank" class="gmaps-btn">Open in Google Maps</a>
+      `;
+    }
+  </script>
+
+  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+  <script>AOS.init({ duration: 1000, once: true });</script>
+
+  <!-- SOS Floating Button -->
+  <button class="sos-btn" onclick="openSOS()">🚨</button>
+
+  <!-- SOS Modal -->
+  <div id="sosModal" class="sos-modal">
+    <div class="sos-content">
+      <h3>🚨 Emergency Contacts</h3>
+      <p><a href="tel:100">🚔 Police - 100</a></p>
+      <p><a href="tel:108">🏥 Ambulance/Hospital - 108</a></p>
+      <div id="userEmergency"></div>
+      <button class="edit-btn" onclick="closeSOS()">Close</button>
+    </div>
+  </div>
+</body>
+</html>

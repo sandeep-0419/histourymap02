@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HistouryMap - Planner</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  <style>
+    /* Layout for Trip Planner + Bucket List */
+    .planner-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-top: 20px;
+    }
+    .planner-container section {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    .planner-container h2 {
+      color: #1565c0;
+      margin-bottom: 15px;
+    }
+    .planner-container ul {
+      list-style: none;
+      padding: 0;
+    }
+    .planner-container ul li {
+      margin: 8px 0;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .planner-container ul li input {
+      margin-right: 6px;
+    }
+
+    /* Trip Summary Card */
+    #tripSummary {
+      display: none;
+      background: linear-gradient(135deg, #42a5f5, #1e88e5);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    #tripSummary h3 {
+      margin-bottom: 15px;
+      font-size: 22px;
+    }
+    #tripSummary .total {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    #tripSummary .breakdown {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    #tripSummary .item {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .planner-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="preloader"><div class="loader"></div></div>
+
+ <header>
+  <h1>HistouryMap</h1>
+  <nav id="navbar">
+  <a href="index.html" class="active"><i class="fas fa-home"></i> Home</a>
+  <a href="places.html"><i class="fas fa-map-marked-alt"></i> Tourist Places</a>
+  <a href="planner.html"><i class="fas fa-calendar-alt"></i> Trip Planner</a>
+  <a href="eco.html"><i class="fas fa-leaf"></i> Eco Score</a>
+  <a href="route.html"><i class="fas fa-route"></i> Route View</a>
+  <span id="authLink"></span>
+</nav>
+
+</header>
+
+
+  <div class="hero small-hero">
+    <h2>📅 Planner</h2>
+    <p>Plan your trip and save your dream destinations together.</p>
+  </div>
+
+  <main>
+    <div class="planner-container">
+      <!-- Trip Planner -->
+      <section data-aos="fade-right">
+        <h2><i class="fas fa-calendar-alt"></i> Trip Planner</h2>
+        <label>No. of Days:</label>
+        <input id="days" type="number" placeholder="e.g., 5">
+
+        <label>stayCost:</label>
+        <input id="cost" type="number" placeholder="e.g., 2000">
+
+        <label>Travel Cost:</label>
+        <input id="travel" type="number" placeholder="e.g., 5000">
+
+        <label>Food Cost:</label>
+        <input id="food" type="number" placeholder="e.g., 3000">
+
+        <label>Extra Cost:</label>
+        <input id="extra" type="number" placeholder="e.g., 2000">
+
+        <button onclick="calculateTrip()"><i class="fas fa-calculator"></i> Calculate</button>
+        <p id="tripResult"></p>
+        <canvas id="tripChart"></canvas>
+
+        <!-- Summary Card -->
+        <div id="tripSummary"></div>
+      </section>
+
+   <!-- Bucket List Section -->
+<section data-aos="fade-left">
+  <h2><i class="fas fa-star"></i> Bucket List</h2>
+  <p>Select the places you want to visit:</p>
+  <ul id="bucketList">
+    <li><i class="fas fa-location-dot"></i> <input type="checkbox" value="Taj Mahal, Agra"> Taj Mahal, Agra</li>
+    <li><i class="fas fa-location-dot"></i> <input type="checkbox" value="Great Wall of China, China"> Great Wall of China, China</li>
+    <li><i class="fas fa-location-dot"></i> <input type="checkbox" value="Machu Picchu, Peru"> Machu Picchu, Peru</li>
+    <li><i class="fas fa-location-dot"></i> <input type="checkbox" value="Eiffel Tower, France"> Eiffel Tower, France</li>
+    <li><i class="fas fa-location-dot"></i> <input type="checkbox" value="Blue World, Kanpur"> Blue World, Kanpur</li>
+  </ul>
+  <button onclick="saveBucket()"><i class="fas fa-save"></i> Save List</button>
+
+  <!-- Stylish Saved Bucket List -->
+  <div id="bucketSummary" style="display:none; margin-top:20px; background:linear-gradient(135deg,#42a5f5,#1e88e5);color:white;padding:20px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+    <h3>⭐ My Saved Bucket List</h3>
+    <div id="savedBucket" style="margin-top:15px; display:grid; gap:10px;"></div>
+  </div>
+</section>
+
+
+  <footer>
+    <p>🌍 HistouryMap © 2025 | Smart India Hackathon Project</p>
+    <p>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-linkedin"></i></a>
+      <a href="#"><i class="fab fa-github"></i></a>
+    </p>
+  </footer>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/main.js"></script>
+
+  <!-- AOS -->
+  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+  <script>AOS.init({ duration: 1000, once: true });</script>
+
+  <script>
+    // Extra JS for showing summary card
+    function showTripSummary(stay, travel, food, extra, total) {
+      const summary = document.getElementById("tripSummary");
+      summary.style.display = "block";
+      summary.innerHTML = `
+        <h3>🧳 Trip Summary</h3>
+        <div class="total">Total Cost: ₹${total}</div>
+        <div class="breakdown">
+          <div class="item"><i class="fas fa-hotel"></i> Stay: ₹${stay}</div>
+          <div class="item"><i class="fas fa-bus"></i> Travel: ₹${travel}</div>
+          <div class="item"><i class="fas fa-utensils"></i> Food: ₹${food}</div>
+          <div class="item"><i class="fas fa-gift"></i> Extra: ₹${extra}</div>
+        </div>
+      `;
+    }
+
+    // Hook into existing calculateTrip
+    const oldCalc = calculateTrip;
+    calculateTrip = function() {
+      oldCalc();
+      const days = parseInt(document.getElementById("days")?.value) || 0;
+      const cost = parseInt(document.getElementById("cost")?.value) || 0;
+      const travel = parseInt(document.getElementById("travel")?.value) || 0;
+      const food = parseInt(document.getElementById("food")?.value) || 0;
+      const extra = parseInt(document.getElementById("extra")?.value) || 0;
+      const stayCost = days * cost;
+      const total = stayCost + travel + food + extra;
+      if (total > 0) showTripSummary(stayCost, travel, food, extra, total);
+    }
+  </script>
+  <!-- SOS Floating Button -->
+<button class="sos-btn" onclick="openSOS()">🚨</button>
+
+<!-- SOS Modal -->
+<div id="sosModal" class="sos-modal">
+  <div class="sos-content">
+    <h3>🚨 Emergency Contacts</h3>
+    <p><a href="tel:100">🚔 Police - 100</a></p>
+    <p><a href="tel:108">🏥 Ambulance/Hospital - 108</a></p>
+    <div id="userEmergency"></div>
+    <button class="edit-btn" onclick="closeSOS()">Close</button>
+  </div>
+</div>
+
+</body>
+</html>

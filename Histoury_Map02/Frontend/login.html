@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HistouryMap - Login</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .auth-container {
+      max-width: 400px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+    .auth-container h2 { color: #1565c0; margin-bottom: 15px; }
+    .auth-container input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .auth-container button {
+      width: 95%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    .guest-btn {
+      background: #90caf9;
+      color: #0d47a1;
+    }
+  </style>
+</head>
+<body>
+  <div id="preloader"><div class="loader"></div></div>
+
+  <header>
+    <h1>HistouryMap</h1>
+    <nav id="navbar">
+      <a href="index.html"><i class="fas fa-home"></i> Home</a>
+      <span id="authLink"></span>
+    </nav>
+  </header>
+
+  <div class="hero small-hero">
+    <h2>🔑 Login</h2>
+    <p>Access your account or continue as guest.</p>
+  </div>
+
+  <main>
+    <div class="auth-container">
+      <h2>Login</h2>
+      <input type="text" id="loginEmail" placeholder="Enter email or phone">
+      <input type="password" id="loginPassword" placeholder="Enter password">
+      <button onclick="loginUser()">Login</button>
+      <button class="guest-btn" onclick="guestLogin()">Continue as Guest</button>
+      <p>Don't have an account? <a href="signup.html">Signup</a></p>
+    </div>
+  </main>
+
+  <footer>
+    <p>🌍 HistouryMap © 2025 | Smart India Hackathon Project</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    function loginUser() {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+      const storedUser = JSON.parse(localStorage.getItem("userAccount"));
+
+      if (storedUser && storedUser.email === email && storedUser.password === password) {
+        localStorage.setItem("userProfile", JSON.stringify(storedUser));
+        alert("✅ Login successful!");
+        window.location.href = "profile.html";
+      } else {
+        alert("❌ Invalid credentials!");
+      }
+    }
+
+    function guestLogin() {
+      const guest = { name: "Guest User", email: "Guest Mode" };
+      localStorage.setItem("userProfile", JSON.stringify(guest));
+      alert("👤 Logged in as Guest");
+      window.location.href = "profile.html";
+    }
+
+    window.onload = updateNavbar;
+  </script>
+</body>
+</html>
